@@ -1,6 +1,6 @@
 {
   "name": "aurelia-websocket",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A plugin for Aurelia based projects.",
   "keywords": [
     "aurelia",
@@ -22,21 +22,21 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "aurelia-dependency-injection": "^1.0.0-beta.2.1.1",
-    "aurelia-event-aggregator": "^1.0.0-beta.2.0.1",
-    "aurelia-framework": "^1.0.0-beta.2.0.1",
-    "aurelia-http-client": "^1.0.0-beta.2.0.1",
+    "aurelia-dependency-injection": "^1.0.0-rc.1.0.0",
+    "aurelia-event-aggregator": "^1.0.0-rc.1.0.0",
+    "aurelia-framework": "^1.0.0-rc.1.0.0",
+    "aurelia-http-client": "^1.0.0-rc.1.0.0",
     "aurelia-json": "^0.2.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.9.0",
-    "del": "^2.2.0",
+    "del": "^2.2.1",
     "gulp": "^3.9.1",
-    "gulp-jasmine": "^2.3.0",
+    "gulp-jasmine": "^2.4.0",
     "gulp-tsb": "^1.10.4",
     "jasmine": "^2.4.1",
-    "jasmine-reporters": "^2.1.1",
+    "jasmine-reporters": "^2.2.0",
     "run-sequence": "^1.2.1",
     "typescript": "^1.8.10",
     "vinyl-paths": "^2.1.0"
