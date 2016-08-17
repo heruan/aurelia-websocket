@@ -1,0 +1,4 @@
+{
+  "name": "aurelia-websocket",
+  "main": "dist/index.d.ts"
+}
