@@ -14,6 +14,8 @@ export class WebsocketClient {
 
     public static DISCONNECTED_EVENT: string = "endpoint-disconnected";
 
+    public static RECONNECTING_EVENT: string = "endpoint-reconnecting";
+
     public users: Set<Object> = new Set<Object>();
 
     private eventAggregator: EventAggregator;
@@ -28,9 +30,18 @@ export class WebsocketClient {
 
     private revertMap: Map<Object, Object>;
 
-    public constructor(httpClient: HttpClient) {
+    private reconnectAfter: number = 0;                     ///< Time in seconds to wait until next reconnect.
+
+    private reconnecting: boolean = false;                  ///< True during reconnection algorithm.
+
+    private url: string = '';
+
+    private protocols: string | string [] = '';
+
+    public constructor(httpClient: HttpClient, reconnectAfter: number = 0) {
         this.eventAggregator = new EventAggregator();
         this.httpClient = httpClient;
+        this.reconnectAfter = reconnectAfter;
         this.on(JoinMessage.EVENT, user => {
             console.log("Connected: " + user.name);
             this.users.add(user);
@@ -70,9 +81,12 @@ export class WebsocketClient {
     }
 
     public connect(url: string, protocols?: string|string[]): Promise<WebsocketClient> {
+        this.url = url;
+        this.protocols = protocols;
         return new Promise<WebsocketClient>((resolve, reject) => {
             let endpoint = new WebSocket(url, protocols);
             endpoint.onopen = event => {
+                this.reconnecting = false;  // Reconnecting algorithm stopped.
                 this.connected = true;
                 this.endpoint = endpoint;
                 this.eventAggregator.subscribe(WebsocketClient.USERS_EVENT, users => {
@@ -81,10 +95,57 @@ export class WebsocketClient {
                 this.eventAggregator.publish(WebsocketClient.CONNECTED_EVENT, endpoint);
                 resolve(this);
             };
-            endpoint.onclose = event => this.connected = false;
+            endpoint.onclose = event => this.onEndPointClose(event);
             endpoint.onmessage = event => this.handleMessage(event.data);
-            endpoint.onerror = error => reject(error);
+            endpoint.onerror = error => { reject(error); this.onEndPointError(error); }
         });
+    }
+
+    public reconnect() : boolean {
+        // Only start reconnection algorithm only if not already started
+        if (!this.reconnecting) {
+            this._reconnect();
+            return true;
+        }
+        return false;
+    }
+
+    public isConnected() : boolean {
+        return this.connected;
+    }
+
+    public setReconnectTimeout(reconnectAfter: number){
+        this.reconnectAfter = reconnectAfter;
+    }
+
+    private onEndPointClose(event: CloseEvent) {
+        this.connected = false;
+        console.log('EP closed the socket!');
+        // Tell subscribers the web socket got closed
+        this.eventAggregator.publish(WebsocketClient.DISCONNECTED_EVENT, this);
+
+        if (this.reconnectAfter > 0)
+        {
+            this.reconnecting = true;    // Starting reconnection alorithm.
+            // Wait 'reconnectAfter' seconds and then reconnect
+            setTimeout(() => this.onReconnect(), this.reconnectAfter * 1000);
+        }
+    }
+
+    private onEndPointError(error: ErrorEvent){
+
+        console.log('EP socket error!');
+    }
+
+    private onReconnect() {
+        this._reconnect();
+    }
+
+    private _reconnect() {
+        // Tell subscribers WS starts reconnection algorithm
+        this.eventAggregator.publish(WebsocketClient.RECONNECTING_EVENT, this);
+        // Connect again
+        this.connect(this.url, this.protocols);
     }
 
     private handleMessage(message: any) {

@@ -3,6 +3,7 @@ export declare class WebsocketClient {
     static USERS_EVENT: string;
     static CONNECTED_EVENT: string;
     static DISCONNECTED_EVENT: string;
+    static RECONNECTING_EVENT: string;
     users: Set<Object>;
     private eventAggregator;
     private httpClient;
@@ -10,7 +11,11 @@ export declare class WebsocketClient {
     private connected;
     private entityMap;
     private revertMap;
-    constructor(httpClient: HttpClient);
+    private reconnectAfter;
+    private reconnecting;
+    private url;
+    private protocols;
+    constructor(httpClient: HttpClient, reconnectAfter?: number);
     getEntityMap(): Map<string, Object>;
     setEntityMap(entityMap: Map<string, Object>): void;
     getRevertMap(): Map<Object, Object>;
@@ -19,6 +24,13 @@ export declare class WebsocketClient {
     setUsers(users: Set<Object>): void;
     on(event: string, callback: Function): void;
     connect(url: string, protocols?: string | string[]): Promise<WebsocketClient>;
+    reconnect(): boolean;
+    isConnected(): boolean;
+    setReconnectTimeout(reconnectAfter: number): void;
+    private onEndPointClose(event);
+    private onEndPointError(error);
+    private onReconnect();
+    private _reconnect();
     private handleMessage(message);
     close(): void;
     send(data: any): void;
