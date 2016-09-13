@@ -1,5 +1,5 @@
 import {autoinject} from "aurelia-dependency-injection";
-import {EventAggregator} from "aurelia-event-aggregator";
+import {EventAggregator, Subscription} from "aurelia-event-aggregator";
 import {HttpClient} from "aurelia-http-client";
 import {JsonEncoder, JsonDecoder} from "aurelia-json";
 import {JoinMessage} from "./join-message";
@@ -76,8 +76,8 @@ export class WebsocketClient {
         this.users = users;
     }
 
-    public on(event: string, callback: Function) {
-        this.eventAggregator.subscribe(event, callback);
+    public on(event: string, callback: Function) : Subscription {
+        return this.eventAggregator.subscribe(event, callback);
     }
 
     public connect(url: string, protocols?: string|string[]): Promise<WebsocketClient> {
