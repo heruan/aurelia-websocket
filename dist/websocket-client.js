@@ -55,7 +55,7 @@ var WebsocketClient = (function () {
         this.users = users;
     };
     WebsocketClient.prototype.on = function (event, callback) {
-        this.eventAggregator.subscribe(event, callback);
+        return this.eventAggregator.subscribe(event, callback);
     };
     WebsocketClient.prototype.connect = function (url, protocols) {
         var _this = this;

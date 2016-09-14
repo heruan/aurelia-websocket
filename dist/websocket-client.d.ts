@@ -1,3 +1,4 @@
+import { Subscription } from "aurelia-event-aggregator";
 import { HttpClient } from "aurelia-http-client";
 export declare class WebsocketClient {
     static USERS_EVENT: string;
@@ -22,7 +23,7 @@ export declare class WebsocketClient {
     setRevertMap(revertMap: Map<Object, Object>): void;
     getUsers(): Set<Object>;
     setUsers(users: Set<Object>): void;
-    on(event: string, callback: Function): void;
+    on(event: string, callback: Function): Subscription;
     connect(url: string, protocols?: string | string[]): Promise<WebsocketClient>;
     reconnect(): boolean;
     isConnected(): boolean;
