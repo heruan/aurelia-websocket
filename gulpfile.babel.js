@@ -1,3 +1,5 @@
+/* */ 
+"format cjs";
 import gulp from "gulp";
 import paths from "vinyl-paths";
 import del from "del";

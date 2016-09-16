@@ -15,12 +15,18 @@ var aurelia_json_1 = require("aurelia-json");
 var join_message_1 = require("./join-message");
 var leave_message_1 = require("./leave-message");
 var WebsocketClient = (function () {
-    function WebsocketClient(httpClient) {
+    function WebsocketClient(httpClient, reconnectAfter) {
         var _this = this;
+        if (reconnectAfter === void 0) { reconnectAfter = 0; }
         this.users = new Set();
         this.connected = false;
+        this.reconnectAfter = 0; ///< Time in seconds to wait until next reconnect.
+        this.reconnecting = false; ///< True during reconnection algorithm.
+        this.url = '';
+        this.protocols = '';
         this.eventAggregator = new aurelia_event_aggregator_1.EventAggregator();
         this.httpClient = httpClient;
+        this.reconnectAfter = reconnectAfter;
         this.on(join_message_1.JoinMessage.EVENT, function (user) {
             console.log("Connected: " + user.name);
             _this.users.add(user);
@@ -49,13 +55,16 @@ var WebsocketClient = (function () {
         this.users = users;
     };
     WebsocketClient.prototype.on = function (event, callback) {
-        this.eventAggregator.subscribe(event, callback);
+        return this.eventAggregator.subscribe(event, callback);
     };
     WebsocketClient.prototype.connect = function (url, protocols) {
         var _this = this;
+        this.url = url;
+        this.protocols = protocols;
         return new Promise(function (resolve, reject) {
             var endpoint = new WebSocket(url, protocols);
             endpoint.onopen = function (event) {
+                _this.reconnecting = false; // Reconnecting algorithm stopped.
                 _this.connected = true;
                 _this.endpoint = endpoint;
                 _this.eventAggregator.subscribe(WebsocketClient.USERS_EVENT, function (users) {
@@ -64,10 +73,48 @@ var WebsocketClient = (function () {
                 _this.eventAggregator.publish(WebsocketClient.CONNECTED_EVENT, endpoint);
                 resolve(_this);
             };
-            endpoint.onclose = function (event) { return _this.connected = false; };
+            endpoint.onclose = function (event) { return _this.onEndPointClose(event); };
             endpoint.onmessage = function (event) { return _this.handleMessage(event.data); };
-            endpoint.onerror = function (error) { return reject(error); };
+            endpoint.onerror = function (error) { reject(error); _this.onEndPointError(error); };
         });
+    };
+    WebsocketClient.prototype.reconnect = function () {
+        // Only start reconnection algorithm only if not already started
+        if (!this.reconnecting) {
+            this._reconnect();
+            return true;
+        }
+        return false;
+    };
+    WebsocketClient.prototype.isConnected = function () {
+        return this.connected;
+    };
+    WebsocketClient.prototype.setReconnectTimeout = function (reconnectAfter) {
+        this.reconnectAfter = reconnectAfter;
+    };
+    WebsocketClient.prototype.onEndPointClose = function (event) {
+        var _this = this;
+        this.connected = false;
+        console.log('EP closed the socket!');
+        // Tell subscribers the web socket got closed
+        this.eventAggregator.publish(WebsocketClient.DISCONNECTED_EVENT, this);
+        if (this.reconnectAfter > 0) {
+            this.reconnecting = true; // Starting reconnection alorithm.
+            // Wait 'reconnectAfter' seconds and then reconnect
+            setTimeout(function () { return _this.onReconnect(); }, this.reconnectAfter * 1000);
+        }
+    };
+    WebsocketClient.prototype.onEndPointError = function (error) {
+        console.log('EP socket error!');
+    };
+    WebsocketClient.prototype.onReconnect = function () {
+        this._reconnect();
+    };
+    WebsocketClient.prototype._reconnect = function () {
+        // Tell subscribers WS starts reconnection algorithm
+        this.eventAggregator.publish(WebsocketClient.RECONNECTING_EVENT, this);
+        // Connect again
+        this.connect(this.url, this.protocols);
     };
     WebsocketClient.prototype.handleMessage = function (message) {
         var jsonDecoder = new aurelia_json_1.JsonDecoder(this.entityMap, this.revertMap);
@@ -104,9 +151,10 @@ var WebsocketClient = (function () {
     WebsocketClient.USERS_EVENT = "endpoint-users";
     WebsocketClient.CONNECTED_EVENT = "endpoint-connected";
     WebsocketClient.DISCONNECTED_EVENT = "endpoint-disconnected";
+    WebsocketClient.RECONNECTING_EVENT = "endpoint-reconnecting";
     WebsocketClient = __decorate([
         aurelia_dependency_injection_1.autoinject, 
-        __metadata('design:paramtypes', [aurelia_http_client_1.HttpClient])
+        __metadata('design:paramtypes', [aurelia_http_client_1.HttpClient, Number])
     ], WebsocketClient);
     return WebsocketClient;
 }());
