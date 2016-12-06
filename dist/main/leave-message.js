@@ -8,10 +8,9 @@ var message_1 = require("./message");
 var LeaveMessage = (function (_super) {
     __extends(LeaveMessage, _super);
     function LeaveMessage(channel) {
-        _super.call(this, LeaveMessage.EVENT, channel);
+        return _super.call(this, LeaveMessage.EVENT, channel) || this;
     }
-    LeaveMessage.EVENT = "user-left";
     return LeaveMessage;
 }(message_1.Message));
 exports.LeaveMessage = LeaveMessage;
-//# sourceMappingURL=leave-message.js.map
+LeaveMessage.EVENT = "user-left";

@@ -1,9 +1,9 @@
 
 export class Message {
 
-  private event: string;
+  public event: string;
 
-  private payload: any;
+  public payload: any;
 
   public constructor(event: string, payload?: any) {
     this.event = event;

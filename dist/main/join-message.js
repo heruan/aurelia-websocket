@@ -8,10 +8,9 @@ var message_1 = require("./message");
 var JoinMessage = (function (_super) {
     __extends(JoinMessage, _super);
     function JoinMessage(channel) {
-        _super.call(this, JoinMessage.EVENT, channel);
+        return _super.call(this, JoinMessage.EVENT, channel) || this;
     }
-    JoinMessage.EVENT = "user-joined";
     return JoinMessage;
 }(message_1.Message));
 exports.JoinMessage = JoinMessage;
-//# sourceMappingURL=join-message.js.map
+JoinMessage.EVENT = "user-joined";

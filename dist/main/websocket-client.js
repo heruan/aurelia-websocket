@@ -12,15 +12,17 @@ var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
 var aurelia_event_aggregator_1 = require("aurelia-event-aggregator");
 var aurelia_http_client_1 = require("aurelia-http-client");
 var aurelia_json_1 = require("aurelia-json");
+var message_1 = require("./message");
 var join_message_1 = require("./join-message");
 var leave_message_1 = require("./leave-message");
 var WebsocketClient = (function () {
-    function WebsocketClient(httpClient) {
+    function WebsocketClient(httpClient, jsonDecoder) {
         var _this = this;
         this.users = new Set();
         this.connected = false;
         this.eventAggregator = new aurelia_event_aggregator_1.EventAggregator();
         this.httpClient = httpClient;
+        this.jsonDecoder = jsonDecoder;
         this.on(join_message_1.JoinMessage.EVENT, function (user) {
             console.log("Connected: " + user.name);
             _this.users.add(user);
@@ -30,18 +32,6 @@ var WebsocketClient = (function () {
             _this.users.delete(user);
         });
     }
-    WebsocketClient.prototype.getEntityMap = function () {
-        return this.entityMap;
-    };
-    WebsocketClient.prototype.setEntityMap = function (entityMap) {
-        this.entityMap = entityMap;
-    };
-    WebsocketClient.prototype.getRevertMap = function () {
-        return this.revertMap;
-    };
-    WebsocketClient.prototype.setRevertMap = function (revertMap) {
-        this.revertMap = revertMap;
-    };
     WebsocketClient.prototype.getUsers = function () {
         return this.users;
     };
@@ -70,9 +60,8 @@ var WebsocketClient = (function () {
         });
     };
     WebsocketClient.prototype.handleMessage = function (message) {
-        var jsonDecoder = new aurelia_json_1.JsonDecoder(this.entityMap, this.revertMap);
-        var jsonMessage = jsonDecoder.decode(message);
-        this.eventAggregator.publish(jsonMessage["event"], jsonMessage["payload"]);
+        var jsonMessage = this.jsonDecoder.decode(message, message_1.Message);
+        this.eventAggregator.publish(jsonMessage.event, jsonMessage.payload);
     };
     WebsocketClient.prototype.close = function () {
         this.endpoint.close();
@@ -81,7 +70,7 @@ var WebsocketClient = (function () {
     WebsocketClient.prototype.send = function (data) {
         var message = data;
         if (typeof data === "object") {
-            message = new aurelia_json_1.JsonEncoder(this.entityMap).encode(data);
+            message = new aurelia_json_1.JsonEncoder().encode(data);
         }
         switch (this.endpoint.readyState) {
             case WebSocket.CONNECTING:
@@ -101,14 +90,13 @@ var WebsocketClient = (function () {
     WebsocketClient.prototype.leave = function (channel) {
         this.send(new leave_message_1.LeaveMessage(channel));
     };
-    WebsocketClient.USERS_EVENT = "endpoint-users";
-    WebsocketClient.CONNECTED_EVENT = "endpoint-connected";
-    WebsocketClient.DISCONNECTED_EVENT = "endpoint-disconnected";
-    WebsocketClient = __decorate([
-        aurelia_dependency_injection_1.autoinject, 
-        __metadata('design:paramtypes', [aurelia_http_client_1.HttpClient])
-    ], WebsocketClient);
     return WebsocketClient;
 }());
+WebsocketClient.USERS_EVENT = "endpoint-users";
+WebsocketClient.CONNECTED_EVENT = "endpoint-connected";
+WebsocketClient.DISCONNECTED_EVENT = "endpoint-disconnected";
+WebsocketClient = __decorate([
+    aurelia_dependency_injection_1.autoinject,
+    __metadata("design:paramtypes", [aurelia_http_client_1.HttpClient, aurelia_json_1.JsonDecoder])
+], WebsocketClient);
 exports.WebsocketClient = WebsocketClient;
-//# sourceMappingURL=websocket-client.js.map

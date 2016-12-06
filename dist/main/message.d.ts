@@ -1,5 +1,5 @@
 export declare class Message {
-    private event;
-    private payload;
+    event: string;
+    payload: any;
     constructor(event: string, payload?: any);
 }

@@ -1,9 +1,10 @@
-import {autoinject} from "aurelia-dependency-injection";
-import {EventAggregator} from "aurelia-event-aggregator";
-import {HttpClient} from "aurelia-http-client";
-import {JsonEncoder, JsonDecoder} from "aurelia-json";
-import {JoinMessage} from "./join-message";
-import {LeaveMessage} from "./leave-message";
+import { autoinject} from "aurelia-dependency-injection";
+import { EventAggregator} from "aurelia-event-aggregator";
+import { HttpClient} from "aurelia-http-client";
+import { JsonEncoder, JsonDecoder} from "aurelia-json";
+import { Message } from "./message";
+import { JoinMessage} from "./join-message";
+import { LeaveMessage} from "./leave-message";
 
 @autoinject
 export class WebsocketClient {
@@ -20,6 +21,8 @@ export class WebsocketClient {
 
     private httpClient: HttpClient;
 
+    private jsonDecoder: JsonDecoder;
+
     private endpoint: WebSocket;
 
     private connected: boolean = false;
@@ -28,9 +31,10 @@ export class WebsocketClient {
 
     private revertMap: Map<Object, Object>;
 
-    public constructor(httpClient: HttpClient) {
+    public constructor(httpClient: HttpClient, jsonDecoder: JsonDecoder) {
         this.eventAggregator = new EventAggregator();
         this.httpClient = httpClient;
+        this.jsonDecoder = jsonDecoder;
         this.on(JoinMessage.EVENT, user => {
             console.log("Connected: " + user.name);
             this.users.add(user);
@@ -39,22 +43,6 @@ export class WebsocketClient {
             console.log("Disconnected: " + user.name);
             this.users.delete(user);
         });
-    }
-
-    public getEntityMap(): Map<string, Object> {
-        return this.entityMap;
-    }
-
-    public setEntityMap(entityMap: Map<string, Object>) {
-        this.entityMap = entityMap;
-    }
-
-    public getRevertMap(): Map<Object, Object> {
-        return this.revertMap;
-    }
-
-    public setRevertMap(revertMap: Map<Object, Object>) {
-        this.revertMap = revertMap;
     }
 
     public getUsers(): Set<Object> {
@@ -88,9 +76,8 @@ export class WebsocketClient {
     }
 
     private handleMessage(message: any) {
-        let jsonDecoder = new JsonDecoder(this.entityMap, this.revertMap);
-        let jsonMessage = jsonDecoder.decode(message);
-        this.eventAggregator.publish(jsonMessage["event"], jsonMessage["payload"]);
+        let jsonMessage = this.jsonDecoder.decode(message, Message);
+        this.eventAggregator.publish(jsonMessage.event, jsonMessage.payload);
     }
 
     public close(): void {
@@ -101,7 +88,7 @@ export class WebsocketClient {
     public send(data: any): void {
         let message = data;
         if (typeof data === "object") {
-            message = new JsonEncoder(this.entityMap).encode(data);
+            message = new JsonEncoder().encode(data);
         }
         switch (this.endpoint.readyState) {
             case WebSocket.CONNECTING:

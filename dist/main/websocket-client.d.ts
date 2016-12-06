@@ -1,4 +1,5 @@
 import { HttpClient } from "aurelia-http-client";
+import { JsonDecoder } from "aurelia-json";
 export declare class WebsocketClient {
     static USERS_EVENT: string;
     static CONNECTED_EVENT: string;
@@ -6,15 +7,12 @@ export declare class WebsocketClient {
     users: Set<Object>;
     private eventAggregator;
     private httpClient;
+    private jsonDecoder;
     private endpoint;
     private connected;
     private entityMap;
     private revertMap;
-    constructor(httpClient: HttpClient);
-    getEntityMap(): Map<string, Object>;
-    setEntityMap(entityMap: Map<string, Object>): void;
-    getRevertMap(): Map<Object, Object>;
-    setRevertMap(revertMap: Map<Object, Object>): void;
+    constructor(httpClient: HttpClient, jsonDecoder: JsonDecoder);
     getUsers(): Set<Object>;
     setUsers(users: Set<Object>): void;
     on(event: string, callback: Function): void;
