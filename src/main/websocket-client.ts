@@ -1,10 +1,10 @@
-import { autoinject} from "aurelia-dependency-injection";
-import { EventAggregator} from "aurelia-event-aggregator";
-import { HttpClient} from "aurelia-http-client";
-import { JsonEncoder, JsonDecoder} from "aurelia-json";
+import { autoinject } from "aurelia-dependency-injection";
+import { EventAggregator } from "aurelia-event-aggregator";
+import { HttpClient } from "aurelia-http-client";
+import { JsonEncoder, JsonDecoder } from "aurelia-json";
 import { Message } from "./message";
-import { JoinMessage} from "./join-message";
-import { LeaveMessage} from "./leave-message";
+import { JoinMessage } from "./join-message";
+import { LeaveMessage } from "./leave-message";
 
 @autoinject
 export class WebsocketClient {
