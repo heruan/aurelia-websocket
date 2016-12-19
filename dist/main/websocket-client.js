@@ -15,7 +15,7 @@ var aurelia_json_1 = require("aurelia-json");
 var message_1 = require("./message");
 var join_message_1 = require("./join-message");
 var leave_message_1 = require("./leave-message");
-var WebsocketClient = (function () {
+var WebsocketClient = WebsocketClient_1 = (function () {
     function WebsocketClient(httpClient, jsonDecoder) {
         var _this = this;
         this.users = new Set();
@@ -48,10 +48,10 @@ var WebsocketClient = (function () {
             endpoint.onopen = function (event) {
                 _this.connected = true;
                 _this.endpoint = endpoint;
-                _this.eventAggregator.subscribe(WebsocketClient.USERS_EVENT, function (users) {
+                _this.eventAggregator.subscribe(WebsocketClient_1.USERS_EVENT, function (users) {
                     _this.users = new Set(users);
                 });
-                _this.eventAggregator.publish(WebsocketClient.CONNECTED_EVENT, endpoint);
+                _this.eventAggregator.publish(WebsocketClient_1.CONNECTED_EVENT, endpoint);
                 resolve(_this);
             };
             endpoint.onclose = function (event) { return _this.connected = false; };
@@ -65,7 +65,7 @@ var WebsocketClient = (function () {
     };
     WebsocketClient.prototype.close = function () {
         this.endpoint.close();
-        this.eventAggregator.publish(WebsocketClient.DISCONNECTED_EVENT, this);
+        this.eventAggregator.publish(WebsocketClient_1.DISCONNECTED_EVENT, this);
     };
     WebsocketClient.prototype.send = function (data) {
         var message = data;
@@ -74,7 +74,7 @@ var WebsocketClient = (function () {
         }
         switch (this.endpoint.readyState) {
             case WebSocket.CONNECTING:
-                this.eventAggregator.subscribeOnce(WebsocketClient.CONNECTED_EVENT, function (endpoint) { return endpoint.send(message); });
+                this.eventAggregator.subscribeOnce(WebsocketClient_1.CONNECTED_EVENT, function (endpoint) { return endpoint.send(message); });
                 break;
             case WebSocket.OPEN:
                 this.endpoint.send(message);
@@ -95,8 +95,11 @@ var WebsocketClient = (function () {
 WebsocketClient.USERS_EVENT = "endpoint-users";
 WebsocketClient.CONNECTED_EVENT = "endpoint-connected";
 WebsocketClient.DISCONNECTED_EVENT = "endpoint-disconnected";
-WebsocketClient = __decorate([
+WebsocketClient = WebsocketClient_1 = __decorate([
     aurelia_dependency_injection_1.autoinject,
     __metadata("design:paramtypes", [aurelia_http_client_1.HttpClient, aurelia_json_1.JsonDecoder])
 ], WebsocketClient);
 exports.WebsocketClient = WebsocketClient;
+var WebsocketClient_1;
+
+//# sourceMappingURL=websocket-client.js.map

@@ -12,5 +12,7 @@ var LeaveMessage = (function (_super) {
     }
     return LeaveMessage;
 }(message_1.Message));
-exports.LeaveMessage = LeaveMessage;
 LeaveMessage.EVENT = "user-left";
+exports.LeaveMessage = LeaveMessage;
+
+//# sourceMappingURL=leave-message.js.map

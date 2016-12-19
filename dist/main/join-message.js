@@ -12,5 +12,7 @@ var JoinMessage = (function (_super) {
     }
     return JoinMessage;
 }(message_1.Message));
-exports.JoinMessage = JoinMessage;
 JoinMessage.EVENT = "user-joined";
+exports.JoinMessage = JoinMessage;
+
+//# sourceMappingURL=join-message.js.map

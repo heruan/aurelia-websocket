@@ -6,3 +6,5 @@ function configure(frameworkConfiguration, pluginConfiguration) {
     return pluginConfiguration(instance);
 }
 exports.configure = configure;
+
+//# sourceMappingURL=index.js.map

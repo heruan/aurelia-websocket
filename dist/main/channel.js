@@ -5,3 +5,5 @@ var Channel = (function () {
     return Channel;
 }());
 exports.Channel = Channel;
+
+//# sourceMappingURL=channel.js.map

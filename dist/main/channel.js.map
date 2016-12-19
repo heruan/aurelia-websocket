@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/main/channel.ts"],"names":[],"mappings":";AAAA;IAAA;IAEA,CAAC;IAAD,cAAC;AAAD,CAFA,AAEC,IAAA;AAFY,0BAAO","file":"channel.js","sourcesContent":["export class Channel {\n\n}\n"]}
